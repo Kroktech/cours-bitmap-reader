@@ -181,8 +181,8 @@ public:
     }
 
     int getImageSizewidthpadding() const {
-        const int size =3* m_width * getPaddingSize();
-        return  m_height* size ;
+        const int size = 3 * m_width + getPaddingSize();
+        return  m_height * size;
     }
 
     // Met à jour les données du bitmap avec les pixels
@@ -191,11 +191,11 @@ public:
         m_data.resize(size);
         for (auto i = 0; i < size; ++i)
             m_data[i] = data[i];
-      
+
     }
     void savePixel(std::ofstream& file)
     {
-        for (int row = m_height-1; row >= 0; --row) {
+        for (int row = m_height - 1; row >= 0; --row) {
             for (int col = 0; col < m_width; ++col) {
                 //const auto& pixel = m_data[(m_height - i - 1) * m_width + j/* j*m_height+i*/];
                 //file.write(reinterpret_cast<const char*>(&pixel.pixel[0]), 3); // 3 octets par pixel (RGB)
@@ -208,8 +208,7 @@ public:
             // Ajouter le padding à la fin de chaque ligne pour l'aligner sur 4 octets
             addPadding(file);
         }
-        updateFIleHeader();
-        updateDIBHeader();
+       
     }
 
     // Sauvegarde le bitmap dans un fichier
@@ -219,7 +218,7 @@ public:
             return false;
 
         // Met à jour les en-têtes
-        
+
         updateFIleHeader();
         updateDIBHeader();
 
@@ -230,7 +229,7 @@ public:
         file.write(reinterpret_cast<char*>(m_DIBheader), 40);
 
         // Écrire les données des pixels
-       
+
         savePixel(file);
         file.close();
         return true;
@@ -314,7 +313,7 @@ private:
     std::vector<Rgb> m_data;
 
     int getPpm() {
-        return static_cast<int>(72 * 39,3701); // Résolution en pixels par pouce (juste un exemple)
+        return static_cast<int>(72 * 39, 3701); // Résolution en pixels par pouce (juste un exemple)
     }
 };
 
@@ -324,8 +323,8 @@ int main() {
         Bitmap::Rgb{0, 0, 255},// Bleu
         Bitmap::Rgb{0, 255, 0},  // Vert
         Bitmap::Rgb{255, 0, 0},  // Rouge
-        
-        
+
+
         Bitmap::Rgb{255, 255, 255} // Blanc
     };
 
