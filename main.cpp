@@ -160,8 +160,139 @@ using uint8 = unsigned char;
 
 class Bitmap {
 public:
+
     Bitmap(const int& width = 0, const int& height = 0)
         : m_width(width), m_height(height) {}
+    int getrotate()
+    {
+        int rotate = 0;
+        std::cout << "tourner vers la gauche (1) vers la droite (2) miroire axe verticale (3) miroire axe horizontale (4) : ";
+        std::cin >> rotate;
+        return rotate;
+    }
+   
+
+
+    void add_rotate()
+    {
+        std::vector<Rgb> tmpdata;
+        tmpdata.resize(m_data.size());
+        int idxtmpdata = 0;
+        
+      
+
+        switch (getrotate())
+        {
+        case 1:
+            for (int row = m_width - 1; row >= 0; --row)
+            {
+
+                for (int col = 0; col < m_height; ++col)
+                {
+
+                    tmpdata[idxtmpdata].pixel[0] = m_data[col * m_width + row].pixel[0];
+                    tmpdata[idxtmpdata].pixel[1] = m_data[col * m_width + row].pixel[1];
+                    tmpdata[idxtmpdata].pixel[2] = m_data[col * m_width + row].pixel[2];
+                    ++idxtmpdata;
+
+                }
+
+            }
+            std::swap(m_height, m_width);
+            break;
+            case 2:
+                for (int row = 0; row < m_width; ++row)
+                {
+
+                    for (int col = m_height -1; col >= 0; --col)
+                    {
+
+                        tmpdata[idxtmpdata].pixel[0] = m_data[col * m_width + row].pixel[0];
+                        tmpdata[idxtmpdata].pixel[1] = m_data[col * m_width + row].pixel[1];
+                        tmpdata[idxtmpdata].pixel[2] = m_data[col * m_width + row].pixel[2];
+                        ++idxtmpdata;
+
+                    }
+
+                }
+                std::swap(m_height, m_width);
+                break;
+            case 3:
+                for (int row = 0; row < m_height; ++row)
+                {
+
+                    for (int col = m_width - 1; col >= 0; --col)
+                    {
+
+                        tmpdata[idxtmpdata].pixel[0] = m_data[row * m_width + col].pixel[0];
+                        tmpdata[idxtmpdata].pixel[1] = m_data[row * m_width + col].pixel[1];
+                        tmpdata[idxtmpdata].pixel[2] = m_data[row * m_width + col].pixel[2];
+                        ++idxtmpdata;
+
+                    }
+
+                }
+
+                break;
+            case 4:
+                for (int row = m_height - 1; row >= 0; --row)
+                {
+
+                    for (int col = 0; col < m_width; ++col)
+                    {
+
+                        tmpdata[idxtmpdata].pixel[0] = m_data[row * m_width + col].pixel[0];
+                        tmpdata[idxtmpdata].pixel[1] = m_data[row * m_width + col].pixel[1];
+                        tmpdata[idxtmpdata].pixel[2] = m_data[row * m_width + col].pixel[2];
+                        ++idxtmpdata;
+
+                    }
+
+                }
+                break;
+        default:
+            break;
+        }
+        m_data.clear();
+        m_data = tmpdata;
+        
+    }
+   
+    int getgrayintensity()
+    {
+        int gray = 0;
+        std::cout << "niveau de gris du plus claire au plus foncé (0/1/2/3) : ";
+        std::cin >> gray;
+        return gray;
+    }
+    void changePixelColor(const float& R, const float& G, const float& B)
+    {
+        for (int i = 0; i < m_data.size(); ++i)
+        {
+            m_data[i].pixel[0] *= R;
+            m_data[i].pixel[1] *= G;
+            m_data[i].pixel[2] *= B;
+        }
+    }
+    void add_gray()
+    {
+        
+        switch (getgrayintensity())
+        {
+            
+        case 1: 
+            changePixelColor(0.5, 0.5, 0.5);
+            break;
+        case 2: 
+            changePixelColor(0.3, 0.3, 0.3);
+            break;
+        case 3:
+            changePixelColor(0.2, 0.2, 0.2);
+            break;
+        default:
+            break;
+        }
+    }
 
     struct Rgb {
         explicit Rgb(const uint8& r = 0, const uint8& g = 0, const uint8& b = 0) {
@@ -195,8 +326,10 @@ public:
     }
     void savePixel(std::ofstream& file)
     {
-        for (int row = m_height - 1; row >= 0; --row) {
-            for (int col = 0; col < m_width; ++col) {
+        for (int row = m_height - 1; row >= 0; --row) 
+        {
+            for (int col = 0; col < m_width; ++col)
+            {
                 //const auto& pixel = m_data[(m_height - i - 1) * m_width + j/* j*m_height+i*/];
                 //file.write(reinterpret_cast<const char*>(&pixel.pixel[0]), 3); // 3 octets par pixel (RGB)
                 Rgb writepixel = m_data[row * m_width + col];
@@ -285,7 +418,9 @@ private:
         for (int i = 0; i < padding; ++i)
             file.put(0);  // Écrire 0x00 comme padding
     }
-
+    int getPpm() {
+        return static_cast<int>(72 * 39, 3701); // Résolution en pixels par pouce (juste un exemple)
+    }
     uint8 m_fileheader[14] = {
         'B', 'M',  // ID du fichier BMP
         0, 0, 0, 0, // Taille du fichier
@@ -312,24 +447,36 @@ private:
     int m_height;
     std::vector<Rgb> m_data;
 
-    int getPpm() {
-        return static_cast<int>(72 * 39, 3701); // Résolution en pixels par pouce (juste un exemple)
-    }
+    
 };
 
 int main() {
-    Bitmap bmp(2, 2);
-    Bitmap::Rgb color[4] = {
-        Bitmap::Rgb{0, 0, 255},// Bleu
-        Bitmap::Rgb{0, 255, 0},  // Vert
-        Bitmap::Rgb{255, 0, 0},  // Rouge
+    Bitmap bmp(3, 2);
+    Bitmap::Rgb color[6] = {
+        Bitmap::Rgb{0, 0,  255},// Bleu
+        Bitmap::Rgb{0, 0,  255},  // Vert
+        Bitmap::Rgb{0, 255,  255},  // Rouge
+        Bitmap::Rgb{0, 0,  255},// Bleu
+        Bitmap::Rgb{0, 0,  255},  // Rouge
+        Bitmap::Rgb{0, 255,  255},  // Rouge
 
+        //Bitmap::Rgb{255, 255, 255}, // Blanc
 
-        Bitmap::Rgb{255, 255, 255} // Blanc
+        //Bitmap::Rgb{255, 255, 255}, // Blanc
+        // Bitmap::Rgb{255,  255, 255} // vert
     };
 
-    bmp.setData(color, 4);
+    bmp.setData(color, 6);
+    bmp.add_gray();
+    bmp.add_rotate();
     bmp.save("C:\\image\\test.bmp");
+
+       /* o  Niveau de gris
+        o Étirement d’histogramme
+        o Binarisation d’une image
+        o Filtre médian
+        o Filtre moyen
+        o Rotation*/
 
     return 0;
 }
